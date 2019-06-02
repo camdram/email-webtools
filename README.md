@@ -2,24 +2,33 @@
 
 `email-webtools` is a small micro-service written in Go that we at Camdram use to keep track of the Email delivery queue length and more generally ensure that email receipt and delivery is functioning as expected.
 
-## Development
-You will need to install the Golang programming language (see [here](https://golang.org/doc/install#install) for details). Currently dependencies need to be install manually but this may change in future - run the following in a terminal:
+## Compiling
+We compile the project down to a single executable that gets uploaded to our server via SFTP or similar. This avoids having to install the entire Go toolchain which is simply unnecessary. Both of these methods produce a single `server` binary file in your working directory.
+
+### Docker
+First [install Docker](https://docs.docker.com/install/) and then run the following in a terminal window:
+```bash
+docker build -t camdram/email-webtools .
+docker run -v `pwd`:/go/src/github.com/camdram/email-webtools camdram/email-webtools
+```
+
+### Old School
+You will need to install the Golang programming language (see [here](https://golang.org/doc/install#install) for details). Currently the project dependencies need to be install manually but this may change in future.
 ```bash
 go get github.com/joho/godotenv
 go get -u github.com/go-sql-driver/mysql
-```
-
-Then get hacking! You can run your code with `go run server.go`.
-
-## Compiling
-We compile the project down to a single binary executable that gets uploaded to our server. This avoids having to install the entire Go toolchain which is simply unnecessary. From your development machine run the following:
-```bash
 GOARCH=amd64 GOOS=linux go tool dist install -v pkg/runtime
 GOARCH=amd64 GOOS=linux go install -v -a std
 GOARCH=amd64 GOOS=linux go build server.go
 ```
 
-This will produce a single `server` binary file.
+## Installing
+You'll need to create a `.env` config file. This should contain something along the following lines:
+```
+MYSQL_USER: username
+MYSQL_PASSWORD: password
+MYSQL_DBL postal
+```
 
 ---
 
