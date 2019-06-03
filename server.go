@@ -1,41 +1,57 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"log"
 	"database/sql"
-	"github.com/joho/godotenv"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
+	"log"
+	"net/http"
+	"os"
 )
 
 func main() {
+	// Read in settings from config file.
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file: ", err.Error())
+		log.Fatal("Error loading .env file: %s", err.Error())
 	}
 	mysqlUser := os.Getenv("MYSQL_USER")
 	mysqlPassword := os.Getenv("MYSQL_PASSWORD")
 	mysqlDatabase := os.Getenv("MYSQL_DB")
 	connectionString := mysqlUser + ":" + mysqlPassword + "@/" + mysqlDatabase
+	port := os.Getenv("HTTP_PORT")
+	if port == "" {
+		log.Fatalf("Server HTTP port not set in .env file! Exiting...")
+	}
 
+	// Open a connection to the database.
 	db, err := sql.Open("mysql", connectionString)
 	if err != nil {
-		log.Fatal("Error connecting to MySQL database: ", err.Error())
+		log.Fatalf("Error connecting to MySQL database: %s", err.Error())
 	}
 	defer db.Close()
 
-	stmtOut, err := db.Prepare("SELECT COUNT(*) FROM queued_messages")
+	// Prepare a query to run against the database.
+	stmt, err := db.Prepare("SELECT COUNT(*) FROM queued_messages")
 	if err != nil {
-		log.Fatal("Error preparing SQL statement: ", err.Error())
+		log.Fatal("Error preparing SQL statement: %s", err.Error())
 	}
-	defer stmtOut.Close()
+	defer stmt.Close()
 
+	// Serve responses using HTTP.
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Postal queue length: %d", getQueueLength(stmt))
+	})
+	log.Printf("Listening on port %s", port)
+	http.ListenAndServe(":"+port, nil)
+}
+
+func getQueueLength(stmt *sql.Stmt) int {
 	var queueLength int
-	err = stmtOut.QueryRow().Scan(&queueLength)
+	err := stmt.QueryRow().Scan(&queueLength)
 	if err != nil {
-		log.Fatal("Error performing query: ", err.Error())
+		log.Fatal("Error performing query: %s", err.Error())
 	}
-
-	fmt.Printf("The length of the Postal mail queue is: %d \n", queueLength)
+	return queueLength
 }
