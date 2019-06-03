@@ -8,9 +8,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
+	log.Printf("Starting Camdram Email Web Tools...")
+
 	// Read in settings from config file.
 	err := godotenv.Load()
 	if err != nil {
@@ -22,7 +26,7 @@ func main() {
 	connectionString := mysqlUser + ":" + mysqlPassword + "@/" + mysqlDatabase
 	port := os.Getenv("HTTP_PORT")
 	if port == "" {
-		log.Fatalf("Server HTTP port not set in .env file! Exiting...")
+		log.Fatalf("Server HTTP port not set in .env file, exiting...")
 	}
 
 	// Open a connection to the database.
@@ -38,6 +42,17 @@ func main() {
 		log.Fatal("Error preparing SQL statement: %s", err.Error())
 	}
 	defer stmt.Close()
+
+	// Handle SYSCALLS to exit.
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, syscall.SIGTERM)
+	go func() {
+		for sig := range c {
+			log.Printf("Received %s signal, exiting...", sig.String())
+			os.Exit(0)
+		}
+	}()
 
 	// Serve responses using HTTP.
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
