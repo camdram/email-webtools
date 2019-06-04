@@ -13,13 +13,11 @@ docker run -v `pwd`:/go/src/github.com/camdram/email-webtools camdram/email-webt
 ```
 
 ### Old School
-You will need to install the Golang programming language (see [here](https://golang.org/doc/install#install) for details). Currently the project dependencies need to be install manually but this may change in future.
+You will need to install the Golang programming language (see [here](https://golang.org/doc/install#install) for details). Then run the build using the included Makefile:
 ```bash
-go get github.com/joho/godotenv
-go get -u github.com/go-sql-driver/mysql
 GOARCH=amd64 GOOS=linux go tool dist install -v pkg/runtime
 GOARCH=amd64 GOOS=linux go install -v -a std
-GOARCH=amd64 GOOS=linux go build build -o email-webtools main.go controller.go driver.go
+make all
 ```
 
 ## Installing

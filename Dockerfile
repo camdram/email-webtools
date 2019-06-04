@@ -10,4 +10,4 @@ RUN go get github.com/joho/godotenv
 RUN go get -u github.com/go-sql-driver/mysql
 
 WORKDIR /go/src/github.com/camdram/email-webtools
-CMD [ "go", "build", "-o", "pkg/email-webtools", "main.go", "controller.go", "driver.go" ]
+CMD [ "make", "all" ]
