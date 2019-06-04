@@ -37,7 +37,7 @@ func main() {
 	defer db.Close()
 
 	// Prepare a query to run against the database.
-	stmt, err := db.Prepare("SELECT COUNT(*) FROM queued_messages")
+	stmt, err := db.Prepare("SELECT COUNT(id) as size FROM queued_messages WHERE retry_after IS NULL OR retry_after <= ADDTIME(UTC_TIMESTAMP(), '30') AND locked_at IS NULL")
 	if err != nil {
 		log.Fatal("Error preparing SQL statement: %s", err.Error())
 	}
