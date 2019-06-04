@@ -57,6 +57,9 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Postal queue length: %d", getQueueLength(stmt))
 	})
+	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Pong!")
+	})
 	log.Printf("Listening on port %s", port)
 	if err := http.ListenAndServe(":"+port, logRequest(http.DefaultServeMux)); err != nil {
 		log.Fatal("Error starting web server: %s", err.Error())
