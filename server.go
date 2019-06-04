@@ -16,8 +16,7 @@ func main() {
 	log.Printf("Starting Camdram Email Web Tools...")
 
 	// Read in settings from config file.
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file: %s", err.Error())
 	}
 	mysqlUser := os.Getenv("MYSQL_USER")
@@ -59,13 +58,21 @@ func main() {
 		fmt.Fprintf(w, "Postal queue length: %d", getQueueLength(stmt))
 	})
 	log.Printf("Listening on port %s", port)
-	http.ListenAndServe(":"+port, nil)
+	if err := http.ListenAndServe(":"+port, logRequest(http.DefaultServeMux)); err != nil {
+		log.Fatal("Error starting web server: %s", err.Error())
+	}
+}
+
+func logRequest(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s %s", r.Method, r.URL.Path, r.RemoteAddr)
+		handler.ServeHTTP(w, r)
+	})
 }
 
 func getQueueLength(stmt *sql.Stmt) int {
 	var queueLength int
-	err := stmt.QueryRow().Scan(&queueLength)
-	if err != nil {
+	if err := stmt.QueryRow().Scan(&queueLength); err != nil {
 		log.Fatal("Error performing query: %s", err.Error())
 	}
 	return queueLength
