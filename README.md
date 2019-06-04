@@ -3,7 +3,7 @@
 `email-webtools` is a small micro-service written in Go that we at Camdram use to keep track of the Email delivery queue length and more generally ensure that email receipt and delivery is functioning as expected.
 
 ## Compiling
-We compile the project down to a single executable that gets uploaded to our server via SFTP or similar. This avoids having to install the entire Go toolchain which is simply unnecessary. Both of these methods produce a single `server` binary file in your working directory.
+We compile the project down to a single executable that gets uploaded to our server via SFTP or similar. This avoids having to install the entire Go toolchain which is simply unnecessary. Both of these methods produce a single `email-webtools` binary file in your working directory.
 
 ### Docker
 First [install Docker](https://docs.docker.com/install/) and then run the following in a terminal window:
@@ -19,12 +19,13 @@ go get github.com/joho/godotenv
 go get -u github.com/go-sql-driver/mysql
 GOARCH=amd64 GOOS=linux go tool dist install -v pkg/runtime
 GOARCH=amd64 GOOS=linux go install -v -a std
-GOARCH=amd64 GOOS=linux go build server.go
+GOARCH=amd64 GOOS=linux go build build -o email-webtools main.go controller.go driver.go
 ```
 
 ## Installing
 You'll need to create a `.env` config file. This should contain something along the following lines:
 ```
+HTTP_PORT: 8080
 MYSQL_USER: username
 MYSQL_PASSWORD: password
 MYSQL_DBL postal
