@@ -7,14 +7,16 @@ import (
 )
 
 type Controller struct {
-	mux  *http.ServeMux
-	sqld *SqlDriver
+	mux    *http.ServeMux
+	sqld   *SqlDriver
+	bearer string
 }
 
-func newController(driver *SqlDriver) *Controller {
+func newController(driver *SqlDriver, token string) *Controller {
 	c := &Controller{
-		mux:  http.NewServeMux(),
-		sqld: driver,
+		mux:    http.NewServeMux(),
+		sqld:   driver,
+		bearer: token,
 	}
 	c.mux.HandleFunc("/", c.queueLengthResponder)
 	c.mux.HandleFunc("/ping", c.smokeTestResponder)
@@ -22,8 +24,11 @@ func newController(driver *SqlDriver) *Controller {
 }
 
 func (c *Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Printf("%s %s %s", r.Method, r.URL.Path, r.RemoteAddr)
-	c.mux.ServeHTTP(w, r)
+	auth := r.Header.Get("Authorization")
+	if auth == "Bearer "+c.bearer {
+		log.Printf("%s %s %s", r.Method, r.URL.Path, r.RemoteAddr)
+		c.mux.ServeHTTP(w, r)
+	}
 }
 
 func (c *Controller) queueLengthResponder(w http.ResponseWriter, r *http.Request) {

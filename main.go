@@ -21,6 +21,7 @@ func main() {
 	mysqlUser := os.Getenv("MYSQL_USER")
 	mysqlPassword := os.Getenv("MYSQL_PASSWORD")
 	mysqlDatabase := os.Getenv("MYSQL_DB")
+	token := os.Getenv("HTTP_AUTH_TOKEN")
 	port := os.Getenv("HTTP_PORT")
 	if port == "" {
 		log.Fatalf("Server HTTP port not set in .env file, exiting...")
@@ -29,7 +30,7 @@ func main() {
 	// Start a webserver and listen for HTTP requests.
 	driver := newSqlDriver(mysqlUser, mysqlPassword, mysqlDatabase)
 	defer driver.Clean()
-	c := newController(driver)
+	c := newController(driver, token)
 	s := &http.Server{
 		Addr:    ":" + port,
 		Handler: c,
