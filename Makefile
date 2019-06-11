@@ -1,5 +1,6 @@
 GO=$(shell which go)
 GOGET=$(GO) get
+GOFMT=$(GO) fmt
 GOBUILD=$(GO) build
 
 export GOARCH=amd64
@@ -12,10 +13,13 @@ get:
 	@$(GOGET) github.com/joho/godotenv
 	@$(GOGET) github.com/go-sql-driver/mysql
 
+format:
+	$(GOFMT) main.go controller.go driver.go
+
 build:
 	$(GOBUILD) -o $(CURDIR)/pkg/email-webtools main.go controller.go driver.go
 
 clean:
 	@rm -rf $(CURDIR)/pkg
 
-all: dir get build
+all: dir get format build
