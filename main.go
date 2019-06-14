@@ -36,7 +36,7 @@ func main() {
 		Handler: c,
 	}
 	go func() {
-		if err := s.ListenAndServe(); err != nil {
+		if err := s.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatalf("Error starting web server: %s", err.Error())
 		}
 	}()
