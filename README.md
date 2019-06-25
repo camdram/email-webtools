@@ -1,6 +1,11 @@
 # Camdram Email Web Tools
 
-`email-webtools` is a small micro-service written in Go that we at Camdram use to keep track of the Email delivery queue length and more generally ensure that email receipt and delivery is functioning as expected.
+`email-webtools` is a small micro-service written in Go that we at Camdram use to monitor our Email systems and ensure that email receipt and delivery is functioning as expected.
+
+## How does it work?
+At Camdram we use [Postal](https://postal.atech.media/) for the sending and receiving of emails. This service connects to the Postal database in MySQL (technically MariaDB) and, when a correctly authenticated HTTP request is made, executes queries to determine the length of the mail queue and the number of held messaged.
+
+Queued messages are messages that are actively awaiting delivery. Held messages are those that have been put to one side and will not be delivered, needing manual intervention.
 
 ## Compiling
 We compile the project down to a single executable that gets uploaded to our server via SFTP or similar. This avoids having to install the entire Go toolchain which is simply unnecessary. Both of these methods produce a single `email-webtools` binary file in your working directory.

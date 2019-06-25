@@ -18,7 +18,8 @@ func newController(driver *SqlDriver, token string) *Controller {
 		sqld:   driver,
 		bearer: token,
 	}
-	c.mux.HandleFunc("/", c.queueLengthResponder)
+	c.mux.HandleFunc("/queue", c.queueLengthResponder)
+	c.mux.HandleFunc("/held", c.heldMessageCountResponder)
 	c.mux.HandleFunc("/ping", c.smokeTestResponder)
 	return c
 }
@@ -33,6 +34,10 @@ func (c *Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) queueLengthResponder(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Postal queue length: %d", c.sqld.GetQueueLength())
+}
+
+func (c *Controller) heldMessageCountResponder(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Held message count: %d", c.sqld.GetHeldMessageCount())
 }
 
 func (c *Controller) smokeTestResponder(w http.ResponseWriter, r *http.Request) {
