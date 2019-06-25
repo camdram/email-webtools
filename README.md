@@ -29,9 +29,11 @@ make all
 You'll need to create a `.env` config file. This should contain something along the following lines:
 ```
 HTTP_PORT: 8080
+HTTP_AUTH_TOKEN: yourauthtoken
 MYSQL_USER: username
 MYSQL_PASSWORD: password
-MYSQL_DBL postal
+MAIN_DB: postal
+SERVER_DB: postal-server-1
 ```
 
 ---
