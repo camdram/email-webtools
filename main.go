@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	log.Printf("Starting Camdram Email Web Tools...")
+	log.Printf("Starting Camdram Email Web Tools server...")
 
 	// Read in settings from config file.
 	if err := godotenv.Load(); err != nil {

@@ -15,9 +15,11 @@ get:
 
 format:
 	$(GOFMT) main.go controller.go driver.go
+	$(GOFMT) client.go
 
 build:
-	$(GOBUILD) -o $(CURDIR)/pkg/email-webtools main.go controller.go driver.go
+	$(GOBUILD) -o $(CURDIR)/pkg/email-webtools-server main.go controller.go driver.go
+	$(GOBUILD) -o $(CURDIR)/pkg/email-webtools-client client.go
 
 clean:
 	@rm -rf $(CURDIR)/pkg
