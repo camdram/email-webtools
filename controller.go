@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,6 +22,7 @@ func newController(driver *SqlDriver, token string) *Controller {
 	c.mux.HandleFunc("/queue", c.queueLengthResponder)
 	c.mux.HandleFunc("/held", c.heldMessageCountResponder)
 	c.mux.HandleFunc("/ping", c.smokeTestResponder)
+	c.mux.HandleFunc("/json", c.jsonResponder)
 	return c
 }
 
@@ -42,4 +44,15 @@ func (c *Controller) heldMessageCountResponder(w http.ResponseWriter, r *http.Re
 
 func (c *Controller) smokeTestResponder(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Pong!")
+}
+
+func (c *Controller) jsonResponder(w http.ResponseWriter, r *http.Request) {
+	data := map[string]int{
+		"PostalQueue":  c.sqld.GetQueueLength(),
+		"HeldMessages": c.sqld.GetHeldMessageCount(),
+	}
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(&data); err != nil {
+		log.Println(err)
+	}
 }
