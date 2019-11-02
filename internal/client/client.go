@@ -1,7 +1,7 @@
 package client
 
 import (
-	"io/ioutil"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -22,8 +22,7 @@ func StartListner(port string, token string, serverName string) {
 	for {
 		select {
 		case <-ticker.C:
-			go checkQueueLength(port, token, serverName)
-			go checkHeldMessageCount(port, token, serverName)
+			go checkJSON(port, token, serverName)
 		case <-stop:
 			ticker.Stop()
 			return
@@ -31,19 +30,16 @@ func StartListner(port string, token string, serverName string) {
 	}
 }
 
-func checkQueueLength(port string, token string, serverName string) {
-	responseBody := makeRequest("queue", port, token, serverName)
-	log.Printf("Queue: %s", responseBody)
+func checkJSON(port string, token string, serverName string) {
+	data := fetchFromServer(port, token, serverName)
+	log.Println(data["PostalQueue"])
+	log.Println(data["HeldMessages"])
 }
 
-func checkHeldMessageCount(port string, token string, serverName string) {
-	responseBody := makeRequest("held", port, token, serverName)
-	log.Printf("Held: %s", responseBody)
-}
-
-func makeRequest(endpoint string, port string, token string, serverName string) string {
-	url := remoteURL(endpoint, port, serverName)
+func fetchFromServer(port string, token string, serverName string) map[string]int {
+	url := remoteURL("json", port, serverName)
 	client := &http.Client{}
+	var data map[string]int
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalf("Error constructing new request: %s", err.Error())
@@ -54,11 +50,11 @@ func makeRequest(endpoint string, port string, token string, serverName string) 
 		log.Fatalf("Error making request: %s", err.Error())
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalf("Error reading response body: %s", err.Error())
+	dec := json.NewDecoder(resp.Body)
+	if err := dec.Decode(&data); err != nil {
+		log.Fatalf("Error decoding JSON: %s", err.Error())
 	}
-	return string(body)
+	return data
 }
 
 func remoteURL(endpoint string, port string, serverName string) string {
