@@ -1,7 +1,6 @@
 package client
 
 import (
-	"github.com/joho/godotenv"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,29 +10,11 @@ import (
 	"time"
 )
 
-var server, port, token string
-
-func main() {
+func StartListner(port string, token string, serverName string) {
 	log.Printf("Starting Camdram Email Web Tools client...")
-
-	// Read in settings from config file.
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file: %s", err.Error())
-	}
-	server = os.Getenv("HTTP_SERVER")
-	if server == "" {
+	if serverName == "" {
 		log.Fatalf("Server name not set in .env file, exiting...")
 	}
-	port = os.Getenv("HTTP_PORT")
-	if port == "" {
-		log.Fatalf("Server port not set in .env file, exiting...")
-	}
-	token = os.Getenv("HTTP_AUTH_TOKEN")
-	if token == "" {
-		log.Fatalf("Server HTTP auth token not set in .env file, exiting...")
-	}
-
-	// Check the endpoints on the remote server once every minute.
 	ticker := time.NewTicker(1 * time.Minute)
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
@@ -41,8 +22,8 @@ func main() {
 	for {
 		select {
 		case <-ticker.C:
-			go checkQueueLength()
-			go checkHeldMessageCount()
+			go checkQueueLength(port, token, serverName)
+			go checkHeldMessageCount(port, token, serverName)
 		case <-stop:
 			ticker.Stop()
 			return
@@ -50,22 +31,18 @@ func main() {
 	}
 }
 
-func checkQueueLength() {
-	responseBody := makeRequest("queue")
+func checkQueueLength(port string, token string, serverName string) {
+	responseBody := makeRequest("queue", port, token, serverName)
 	log.Printf("Queue: %s", responseBody)
 }
 
-func checkHeldMessageCount() {
-	responseBody := makeRequest("held")
+func checkHeldMessageCount(port string, token string, serverName string) {
+	responseBody := makeRequest("held", port, token, serverName)
 	log.Printf("Held: %s", responseBody)
 }
 
-func remoteUrl(endpoint string) string {
-	return "http://" + server + ":" + port + "/" + endpoint
-}
-
-func makeRequest(endpoint string) string {
-	url := remoteUrl(endpoint)
+func makeRequest(endpoint string, port string, token string, serverName string) string {
+	url := remoteURL(endpoint, port, serverName)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -82,4 +59,8 @@ func makeRequest(endpoint string) string {
 		log.Fatalf("Error reading response body: %s", err.Error())
 	}
 	return string(body)
+}
+
+func remoteURL(endpoint string, port string, serverName string) string {
+	return "http://" + serverName + ":" + port + "/" + endpoint
 }

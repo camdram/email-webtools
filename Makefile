@@ -7,21 +7,21 @@ export GOARCH=amd64
 export GOOS=linux
 
 dir:
-	@if [ ! -d $(CURDIR)/pkg ] ; then mkdir -p $(CURDIR)/pkg ; fi
+	@if [ ! -d $(CURDIR)/bin ] ; then mkdir -p $(CURDIR)/bin ; fi
 
 get:
 	@$(GOGET) github.com/joho/godotenv
 	@$(GOGET) github.com/go-sql-driver/mysql
 
 format:
-	$(GOFMT) main.go controller.go driver.go
-	$(GOFMT) client.go
+	$(GOFMT) main.go
+	$(GOFMT) internal/client/client.go
+	$(GOFMT) internal/server/controller.go internal/server/driver.go internal/server/server.go
 
 build:
-	$(GOBUILD) -o $(CURDIR)/pkg/email-webtools-server main.go controller.go driver.go
-	$(GOBUILD) -o $(CURDIR)/pkg/email-webtools-client client.go
+	$(GOBUILD) -o $(CURDIR)/bin/email-webtools main.go
 
 clean:
-	@rm -rf $(CURDIR)/pkg
+	@rm -rf $(CURDIR)/bin
 
 all: dir get format build

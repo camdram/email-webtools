@@ -1,59 +1,40 @@
 package main
 
 import (
-	"context"
-	"github.com/joho/godotenv"
 	"log"
-	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
-	"time"
+
+	"github.com/camdram/email-webtools/internal/client"
+	"github.com/camdram/email-webtools/internal/server"
+	"github.com/joho/godotenv"
 )
 
-func main() {
-	log.Printf("Starting Camdram Email Web Tools server...")
+var port, token, mysqlUser, mysqlPassword, mainDatabase, serverDatabase, serverName string
 
-	// Read in settings from config file.
+func readConfig() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file: %s", err.Error())
 	}
-	mysqlUser := os.Getenv("MYSQL_USER")
-	mysqlPassword := os.Getenv("MYSQL_PASSWORD")
-	mainDatabase := os.Getenv("MAIN_DB")
-	serverDatabase := os.Getenv("SERVER_DB")
-	token := os.Getenv("HTTP_AUTH_TOKEN")
-	port := os.Getenv("HTTP_PORT")
+	port = os.Getenv("HTTP_PORT")
 	if port == "" {
 		log.Fatalf("Server HTTP port not set in .env file, exiting...")
 	}
-
-	// Start a webserver and listen for HTTP requests.
-	driver := newSqlDriver(mysqlUser, mysqlPassword, mainDatabase, serverDatabase)
-	defer driver.Clean()
-	c := newController(driver, token)
-	s := &http.Server{
-		Addr:    ":" + port,
-		Handler: c,
+	token = os.Getenv("HTTP_AUTH_TOKEN")
+	if token == "" {
+		log.Fatalf("Server HTTP auth token not set in .env file, exiting...")
 	}
-	go func() {
-		if err := s.ListenAndServe(); err != http.ErrServerClosed {
-			log.Fatalf("Error starting web server: %s", err.Error())
-		}
-	}()
-	log.Printf("Listening on port %s", port)
+	mysqlUser = os.Getenv("MYSQL_USER")
+	mysqlPassword = os.Getenv("MYSQL_PASSWORD")
+	mainDatabase = os.Getenv("MAIN_DB")
+	serverDatabase = os.Getenv("SERVER_DB")
+	serverName = os.Getenv("HTTP_SERVER")
+}
 
-	// Gracefully handle SYSCALLS.
-	timeout := 5 * time.Second
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt)
-	signal.Notify(stop, syscall.SIGTERM)
-	<-stop
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-	if err := s.Shutdown(ctx); err != nil {
-		log.Fatalf("Error shutting down web server: %s", err.Error())
+func main() {
+	readConfig()
+	if len(os.Args) > 1 && os.Args[1] == "--server" {
+		server.StartServer(port, token, mysqlUser, mysqlPassword, mainDatabase, serverDatabase)
 	} else {
-		log.Printf("Web server terminated gracefully")
+		client.StartListner(port, token, serverName)
 	}
 }

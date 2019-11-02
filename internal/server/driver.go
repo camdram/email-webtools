@@ -1,9 +1,10 @@
-package main
+package server
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type SqlDriver struct {
