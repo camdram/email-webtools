@@ -10,15 +10,11 @@ import (
 	"time"
 )
 
-var mailer *Mailer
-
 func StartListner(port string, token string, serverName string) {
 	log.Printf("Starting Camdram Email Web Tools client...")
 	if serverName == "" {
 		log.Fatalf("Server name not set in .env file, exiting...")
 	}
-	mailer = NewMailer()
-	defer mailer.Teardown()
 	ticker := time.NewTicker(1 * time.Minute)
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
@@ -37,10 +33,18 @@ func StartListner(port string, token string, serverName string) {
 func checkJSON(port string, token string, serverName string) {
 	data := fetchFromServer(port, token, serverName)
 	if data["PostalQueue"] > 0 {
-		go mailer.SendMail("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Camdram Postal Queue", "Check Postal queue length!")
+		go func() {
+			mailer := NewMailer()
+			defer mailer.Teardown()
+			mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Camdram Postal Queue", "Check Postal queue length!")
+		}()
 	}
 	if data["HeldMessages"] > 0 {
-		go mailer.SendMail("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Camdram Held Message Queue", "Check Held message queue length!")
+		go func() {
+			mailer := NewMailer()
+			defer mailer.Teardown()
+			mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Camdram Held Message Queue", "Check Held message queue length!")
+		}()
 	}
 }
 

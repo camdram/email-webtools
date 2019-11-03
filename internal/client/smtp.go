@@ -27,7 +27,7 @@ func (m *Mailer) Teardown() {
 	}
 }
 
-func (m *Mailer) SendMail(from string, to string, subject string, body string) {
+func (m *Mailer) Send(from string, to string, subject string, body string) {
 	c := m.Client
 	if err := c.Mail(from); err != nil {
 		log.Fatal(err)
