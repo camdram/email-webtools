@@ -39,6 +39,10 @@ func (m *Mailer) Send(from string, to string, subject string, body string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	_, err = fmt.Fprintf(wc, "Subject: [Camdram] "+subject+"\n")
+	if err != nil {
+		log.Fatal(err)
+	}
 	_, err = fmt.Fprintf(wc, body)
 	if err != nil {
 		log.Fatal(err)

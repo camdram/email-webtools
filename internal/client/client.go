@@ -36,14 +36,14 @@ func checkJSON(port string, token string, serverName string) {
 		go func() {
 			mailer := NewMailer()
 			defer mailer.Teardown()
-			mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Camdram Postal Queue", "Check Postal queue length!")
+			mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Postal Queue", "Check Postal queue length!")
 		}()
 	}
 	if data["HeldMessages"] > 0 {
 		go func() {
 			mailer := NewMailer()
 			defer mailer.Teardown()
-			mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Camdram Held Message Queue", "Check Held message queue length!")
+			mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Held Message Queue", "Check Held message queue length!")
 		}()
 	}
 }
