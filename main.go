@@ -31,6 +31,12 @@ func readConfig() {
 }
 
 func main() {
+	logfile, err := os.OpenFile("ewt.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
+	if err != nil {
+		panic(err)
+	}
+	defer logfile.Close()
+	log.SetOutput(logfile)
 	readConfig()
 	if len(os.Args) > 1 && os.Args[1] == "--server" {
 		server.StartServer(port, token, mysqlUser, mysqlPassword, mainDatabase, serverDatabase)
