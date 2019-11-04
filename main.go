@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"os"
 
@@ -11,9 +13,42 @@ import (
 
 var port, token, mysqlUser, mysqlPassword, mainDatabase, serverDatabase, serverName string
 
-func readConfig() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file: %s", err.Error())
+func main() {
+	// Parse command line flags.
+	logFile := flag.String("log", "", "path to log file")
+	confFile := flag.String("config", ".env", "path to config file")
+	mode := flag.String("mode", "", "Program mode")
+	flag.Parse()
+
+	// Deal with logging output.
+	if *logFile != "" {
+		f, err := os.OpenFile(*logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+		log.SetOutput(f)
+	} else {
+		log.SetFlags(0)
+	}
+
+	// Read in environmental variable configuration.
+	readConfig(confFile)
+
+	// Run the actual application.
+	if *mode == "server" {
+		server.StartServer(port, token, mysqlUser, mysqlPassword, mainDatabase, serverDatabase)
+	} else if *mode == "client" {
+		client.StartListner(port, token, serverName)
+	} else {
+		fmt.Println("Need to specify '--mode server' or '--mode client'")
+		os.Exit(1)
+	}
+}
+
+func readConfig(confFile *string) {
+	if err := godotenv.Load(*confFile); err != nil {
+		log.Fatalln(err)
 	}
 	port = os.Getenv("HTTP_PORT")
 	if port == "" {
@@ -28,19 +63,4 @@ func readConfig() {
 	mainDatabase = os.Getenv("MAIN_DB")
 	serverDatabase = os.Getenv("SERVER_DB")
 	serverName = os.Getenv("HTTP_SERVER")
-}
-
-func main() {
-	logfile, err := os.OpenFile("ewt.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
-	if err != nil {
-		panic(err)
-	}
-	defer logfile.Close()
-	log.SetOutput(logfile)
-	readConfig()
-	if len(os.Args) > 1 && os.Args[1] == "--server" {
-		server.StartServer(port, token, mysqlUser, mysqlPassword, mainDatabase, serverDatabase)
-	} else {
-		client.StartListner(port, token, serverName)
-	}
 }
