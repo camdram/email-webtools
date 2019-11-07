@@ -32,7 +32,7 @@ func StartListner(port string, token string, serverName string) {
 
 func checkJSON(port string, token string, serverName string) {
 	data := fetchFromServer(port, token, serverName)
-	if data["PostalQueue"] > 0 {
+	if data["PostalQueue"] > 10 {
 		go func() {
 			mailer := NewMailer()
 			defer mailer.Teardown()
