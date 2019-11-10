@@ -3,23 +3,22 @@ The length of the Camdram held mail queue is alerting!
 Summary:
 
 The number of messages being held back by Postal is non-zero. This
-could be due to server issues (eg. the message broker or SMTP daemon
-has crashed) or simply because Camdram is sending a very high rate of
-email (eg. spam).
+is likely due to Camdram exceeding the outgoing rate limit by sending a
+very large burst of mail within a short timeframe.
 
 Remedial action to take:
 
 1. Login to the admin interface at https://mail.camdram.net and monitor
    the situation.
-2. Ensure both MariaDB and RabbitMQ are functioning using 'sudo
-   systemctl status mariadb rabbitmq-server'.
-3. Run the following to check the status of the email system 'cd
-   /home/postal/app && sudo -Hu postal procodile status'.
-4. If necessary, restart the email system by typing 'sudo systemctl
-   restart postal'.
-5. If the queue is not going down then open a Postal console using
-   the following command 'cd /home/postal/app && sudo -Hu postal
-   bin/postal console' and type the following Ruby code inside:
+2. If the number of held messages is small and the rate limit has not
+   been exceeded then you may manually release messages using the
+   Postal user interface.
+3. If the number of held messages is large then manually releasing each
+   is likely to be laborious. Open a Postal console using the following
+   command 'cd /home/postal/app && sudo -Hu postal bin/postal console'
+   and type the following Ruby code inside (this will sleep for one
+   hour before attempting to resend the first 140 messages in the
+   queue):
 
 =======================================================================
 org = Organization.first
@@ -34,5 +33,7 @@ begin
 end until messages.length == 0
 =======================================================================
 
-   This will sleep for one hour before attempting to resend the first
-   140 messages in the queue.
+This alert may be accompanied by a separate alert regarding the length
+of the Postal mail queue. This usually indicates that a large burst of
+mail has been sent at the same time, or within the space of a few
+minutes.

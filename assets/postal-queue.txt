@@ -5,7 +5,7 @@ Summary:
 The queue of mail waiting to be delivered by Postal is exceeding normal
 operational levels. This could be due to server issues (eg. the message
 broker or SMTP daemon has crashed) or simply because Camdram is sending
-a very high rate of email (eg. spam).
+a very high rate of email within a very short timeframe (eg. spam).
 
 Remedial action to take:
 
@@ -17,22 +17,10 @@ Remedial action to take:
    /home/postal/app && sudo -Hu postal procodile status'.
 4. If necessary, restart the email system by typing 'sudo systemctl
    restart postal'.
-5. If the queue is not going down then open a Postal console using
-   the following command 'cd /home/postal/app && sudo -Hu postal
-   bin/postal console' and type the following Ruby code inside:
 
-=======================================================================
-org = Organization.first
-server = org.servers.first
-db = server.message_db
-begin
-  sleep 3600
-  messages = db.messages(where: {held: 1}, limit: 140)
-  messages.each do |msg|
-    msg.add_to_message_queue(manual: true)
-  end
-end until messages.length == 0
-=======================================================================
-
-   This will sleep for one hour before attempting to resend the first
-   140 messages in the queue.
+If everything is functioning normally, Postal should automatically
+pickup mail from the queue process it appropriately. In the event that
+a large burst of mail is sent within a short timeframe then it is
+possible that the outgoing rate limit will be exceeded and further
+messages will be held back instead of being sent - you will be notified
+in a separate alert if this occurs.
