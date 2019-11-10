@@ -12,6 +12,7 @@ dir:
 get:
 	@$(GOGET) github.com/joho/godotenv
 	@$(GOGET) github.com/go-sql-driver/mysql
+	@$(GOGET) -u github.com/shuLhan/go-bindata/...
 
 format:
 	$(GOFMT) main.go
@@ -19,9 +20,11 @@ format:
 	$(GOFMT) internal/server/controller.go internal/server/driver.go internal/server/server.go
 
 build:
+	go-bindata -o internal/assets/assets.go -pkg assets assets/
 	$(GOBUILD) -o $(CURDIR)/bin/email-webtools main.go
 
 clean:
 	@rm -rf $(CURDIR)/bin
+	@rm -f $(CURDIR)/internal/assets/assets.go
 
 all: dir get format build

@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/camdram/email-webtools/internal/assets"
 )
 
 func StartListner(port string, token string, serverName string) {
@@ -36,44 +38,11 @@ func checkJSON(port string, token string, serverName string) {
 		go func() {
 			mailer := NewMailer()
 			defer mailer.Teardown()
-			messageBody := `The length of the Camdram Postal mail queue is alerting!
-
-Summary:
-
-The queue of mail waiting to be delivered by Postal is exceeding normal
-operational levels. This could be due to server issues (eg. the message
-broker or SMTP daemon has crashed) or simply because Camdram is sending
-a very high rate of email (eg. spam).
-
-Remedial action to take:
-
-1. Login to the admin interface at https://mail.camdram.net and monitor
-   the situation.
-2. Ensure both MariaDB and RabbitMQ are functioning using 'sudo
-   systemctl status mariadb rabbitmq-server'.
-3. Run the following to check the status of the email system 'cd
-   /home/postal/app && sudo -Hu postal procodile status'.
-4. If necessary, restart the email system by typing 'sudo systemctl
-   restart postal'.
-5. If the queue is not going down then open a Postal console using
-   the following command 'cd /home/postal/app && sudo -Hu postal
-   bin/postal console' and type the following Ruby code inside:
-
-=======================================================================
-org = Organization.first
-server = org.servers.first
-db = server.message_db
-begin
-  sleep 3600
-  messages = db.messages(where: {held: 1}, limit: 140)
-  messages.each do |msg|
-    msg.add_to_message_queue(manual: true)
-  end
-end until messages.length == 0
-=======================================================================
-
-   This will sleep for one hour before attempting to resend the first
-   140 messages in the queue.`
+			data, err := assets.Asset("assets/postal-queue.txt")
+			if err != nil {
+				log.Fatalln("Attempted to send mail but failed to generate message body")
+			}
+			messageBody := string(data)
 			mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Postal Queue Alert", messageBody)
 		}()
 	}
@@ -81,44 +50,11 @@ end until messages.length == 0
 		go func() {
 			mailer := NewMailer()
 			defer mailer.Teardown()
-			messageBody := `
-
-Summary:
-
-The number of messages being held back by Postal is non-zero. This
-could be due to server issues (eg. the message broker or SMTP daemon
-has crashed) or simply because Camdram is sending a high rate of email
-(eg. spam).
-
-Remedial action to take:
-
-1. Login to the admin interface at https://mail.camdram.net and monitor
-   the situation.
-2. Ensure both MariaDB and RabbitMQ are functioning using 'sudo
-   systemctl status mariadb rabbitmq-server'.
-3. Run the following to check the status of the email system 'cd
-   /home/postal/app && sudo -Hu postal procodile status'.
-4. If necessary, restart the email system by typing 'sudo systemctl
-   restart postal'.
-5. If the queue is not going down then open a Postal console using
-   the following command 'cd /home/postal/app && sudo -Hu postal
-   bin/postal console' and type the following Ruby code inside:
-
-=======================================================================
-org = Organization.first
-server = org.servers.first
-db = server.message_db
-begin
-	sleep 3600
-	messages = db.messages(where: {held: 1}, limit: 140)
-	messages.each do |msg|
-	msg.add_to_message_queue(manual: true)
-	end
-end until messages.length == 0
-=======================================================================
-
-   This will sleep for one hour before attempting to resend the first
-   140 messages in the queue.`
+			data, err := assets.Asset("assets/held-messages.txt")
+			if err != nil {
+				log.Fatalln("Attempted to send mail but failed to generate message body")
+			}
+			messageBody := string(data)
 			mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Held Message Queue Alert", messageBody)
 		}()
 	}
