@@ -13,9 +13,9 @@ import (
 )
 
 func StartListner(port string, token string, serverName string) {
-	log.Printf("Starting Camdram Email Web Tools client...")
+	log.Println("Starting Email Web Tools in client mode")
 	if serverName == "" {
-		log.Fatalf("Server name not set in .env file, exiting...")
+		log.Fatalln("Server name not set in .env file")
 	}
 	ticker := time.NewTicker(1 * time.Minute)
 	stop := make(chan os.Signal, 1)
@@ -33,52 +33,74 @@ func StartListner(port string, token string, serverName string) {
 }
 
 func checkJSON(port string, token string, serverName string) {
-	data := fetchFromServer(port, token, serverName)
+	data, err := fetchFromServer(port, token, serverName)
+	if err != nil {
+		log.Println("Failed to make request to remote server:", err)
+		return
+	}
 	if data["PostalQueue"] > 10 {
 		go func() {
-			mailer := NewMailer()
+			log.Println("Sending Postal queue alert")
+			mailer, err := NewMailer()
+			if err != nil {
+				log.Println("Failed to initialise alert system:", err)
+				return
+			}
 			defer mailer.Teardown()
 			data, err := assets.Asset("assets/postal-queue.txt")
 			if err != nil {
-				log.Fatalln("Attempted to send mail but failed to generate message body")
+				log.Fatalln("Failed to load alert message:", err)
+				return
 			}
 			messageBody := string(data)
-			mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Postal Queue Alert", messageBody)
+			err = mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Postal Queue Alert", messageBody)
+			if err != nil {
+				log.Fatalln("Failed to send alert:", err)
+			}
 		}()
 	}
 	if data["HeldMessages"] > 0 {
 		go func() {
-			mailer := NewMailer()
+			log.Println("Sending held message queue alert")
+			mailer, err := NewMailer()
+			if err != nil {
+				log.Println("Failed to initialise alert system:", err)
+				return
+			}
 			defer mailer.Teardown()
 			data, err := assets.Asset("assets/held-messages.txt")
 			if err != nil {
-				log.Fatalln("Attempted to send mail but failed to generate message body")
+				log.Fatalln("Failed to load alert message:", err)
+				return
 			}
 			messageBody := string(data)
-			mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Held Message Queue Alert", messageBody)
+			err = mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Held Message Queue Alert", messageBody)
+			if err != nil {
+				log.Fatalln("Failed to send alert:", err)
+			}
 		}()
 	}
 }
 
-func fetchFromServer(port string, token string, serverName string) map[string]int {
+func fetchFromServer(port string, token string, serverName string) (map[string]int, error) {
 	url := remoteURL("json", port, serverName)
 	client := &http.Client{}
 	var data map[string]int
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatalf("Error constructing new request: %s", err.Error())
+		return nil, err
 	}
 	req.Header.Add("Authorization", "Bearer "+token)
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatalf("Error making request: %s", err.Error())
+		return nil, err
 	}
 	defer resp.Body.Close()
 	dec := json.NewDecoder(resp.Body)
 	if err := dec.Decode(&data); err != nil {
-		log.Fatalf("Error decoding JSON: %s", err.Error())
+		return nil, err
 	}
-	return data
+	return data, nil
 }
 
 func remoteURL(endpoint string, port string, serverName string) string {

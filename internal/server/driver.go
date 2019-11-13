@@ -2,19 +2,18 @@ package server
 
 import (
 	"database/sql"
-	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type SqlDriver struct {
+type SQLDriver struct {
 	mainDb    *sql.DB
 	serverDb  *sql.DB
 	queueStmt *sql.Stmt
 	heldStmt  *sql.Stmt
 }
 
-func newSqlDriver(mysqlUser string, mysqlPassword string, mainDatabase string, serverDatabase string) *SqlDriver {
+func newSQLDriver(mysqlUser string, mysqlPassword string, mainDatabase string, serverDatabase string) (*SQLDriver, error) {
 	mainConnString := mysqlUser + ":" + mysqlPassword + "@/" + mainDatabase
 	serverConnString := mysqlUser + ":" + mysqlPassword + "@/" + serverDatabase
 
@@ -22,41 +21,41 @@ func newSqlDriver(mysqlUser string, mysqlPassword string, mainDatabase string, s
 	mainDb, err := sql.Open("mysql", mainConnString)
 	serverDb, err := sql.Open("mysql", serverConnString)
 	if err != nil {
-		log.Fatalf("Error connecting to MySQL database: %s", err.Error())
+		return nil, err
 	}
 
 	// Prepare queries to run against the database.
 	queueStmt, err := mainDb.Prepare("SELECT COUNT(id) as size FROM queued_messages WHERE retry_after IS NULL OR retry_after <= ADDTIME(UTC_TIMESTAMP(), '30') AND locked_at IS NULL")
 	heldStmt, err := serverDb.Prepare("SELECT COUNT(id) as size FROM messages WHERE held = 1")
 	if err != nil {
-		log.Fatal("Error preparing SQL statement: %s", err.Error())
+		return nil, err
 	}
 
-	return &SqlDriver{
+	return &SQLDriver{
 		mainDb:    mainDb,
 		serverDb:  serverDb,
 		queueStmt: queueStmt,
 		heldStmt:  heldStmt,
-	}
+	}, nil
 }
 
-func (driver *SqlDriver) GetQueueLength() int {
+func (driver *SQLDriver) GetQueueLength() (int, error) {
 	var queueLength int
 	if err := driver.queueStmt.QueryRow().Scan(&queueLength); err != nil {
-		log.Fatal("Error performing query: %s", err.Error())
+		return 0, err
 	}
-	return queueLength
+	return queueLength, nil
 }
 
-func (driver *SqlDriver) GetHeldMessageCount() int {
+func (driver *SQLDriver) GetHeldMessageCount() (int, error) {
 	var heldMessageCount int
 	if err := driver.heldStmt.QueryRow().Scan(&heldMessageCount); err != nil {
-		log.Fatal("Error performing query: %s", err.Error())
+		return 0, err
 	}
-	return heldMessageCount
+	return heldMessageCount, nil
 }
 
-func (driver *SqlDriver) Clean() {
+func (driver *SQLDriver) Clean() {
 	driver.queueStmt.Close()
 	driver.heldStmt.Close()
 	driver.mainDb.Close()

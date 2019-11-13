@@ -11,8 +11,11 @@ import (
 )
 
 func StartServer(port string, token string, mysqlUser string, mysqlPassword string, mainDatabase string, serverDatabase string) {
-	log.Printf("Starting Camdram Email Web Tools server...")
-	driver := newSqlDriver(mysqlUser, mysqlPassword, mainDatabase, serverDatabase)
+	log.Println("Starting Email Web Tools in server mode")
+	driver, err := newSQLDriver(mysqlUser, mysqlPassword, mainDatabase, serverDatabase)
+	if err != nil {
+		log.Fatalln("Failed to initialise connection to database:", err)
+	}
 	defer driver.Clean()
 	c := newController(driver, token)
 	s := &http.Server{
@@ -21,10 +24,10 @@ func StartServer(port string, token string, mysqlUser string, mysqlPassword stri
 	}
 	go func() {
 		if err := s.ListenAndServe(); err != http.ErrServerClosed {
-			log.Fatalf("Error starting web server: %s", err.Error())
+			log.Fatalln("Failed to start web server:", err)
 		}
 	}()
-	log.Printf("Listening on port %s", port)
+	log.Println("Listening on port", port)
 
 	// Gracefully handle SYSCALLS.
 	timeout := 5 * time.Second
@@ -35,8 +38,9 @@ func StartServer(port string, token string, mysqlUser string, mysqlPassword stri
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	if err := s.Shutdown(ctx); err != nil {
-		log.Fatalf("Error shutting down web server: %s", err.Error())
+		log.Fatalln("Failed to terminate web server:", err)
 	} else {
-		log.Printf("Web server terminated gracefully")
+		log.Println("Web server terminated gracefully")
+		log.Println("Bye-bye!")
 	}
 }

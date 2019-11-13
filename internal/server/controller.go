@@ -9,11 +9,11 @@ import (
 
 type Controller struct {
 	mux    *http.ServeMux
-	sqld   *SqlDriver
+	sqld   *SQLDriver
 	bearer string
 }
 
-func newController(driver *SqlDriver, token string) *Controller {
+func newController(driver *SQLDriver, token string) *Controller {
 	c := &Controller{
 		mux:    http.NewServeMux(),
 		sqld:   driver,
@@ -35,11 +35,21 @@ func (c *Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) queueLengthResponder(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Postal queue length: %d", c.sqld.GetQueueLength())
+	queueLength, err := c.sqld.GetQueueLength()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fmt.Fprintf(w, "Postal queue length: %d", queueLength)
 }
 
 func (c *Controller) heldMessageCountResponder(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Held message count: %d", c.sqld.GetHeldMessageCount())
+	heldCount, err := c.sqld.GetHeldMessageCount()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fmt.Fprintf(w, "Held message count: %d", heldCount)
 }
 
 func (c *Controller) smokeTestResponder(w http.ResponseWriter, r *http.Request) {
@@ -47,9 +57,19 @@ func (c *Controller) smokeTestResponder(w http.ResponseWriter, r *http.Request) 
 }
 
 func (c *Controller) jsonResponder(w http.ResponseWriter, r *http.Request) {
+	queueLength, err := c.sqld.GetQueueLength()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	heldCount, err := c.sqld.GetHeldMessageCount()
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	data := map[string]int{
-		"PostalQueue":  c.sqld.GetQueueLength(),
-		"HeldMessages": c.sqld.GetHeldMessageCount(),
+		"PostalQueue":  queueLength,
+		"HeldMessages": heldCount,
 	}
 	enc := json.NewEncoder(w)
 	if err := enc.Encode(&data); err != nil {

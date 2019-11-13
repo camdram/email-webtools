@@ -2,7 +2,6 @@ package client
 
 import (
 	"fmt"
-	"log"
 	"net/smtp"
 )
 
@@ -10,45 +9,39 @@ type Mailer struct {
 	Client *smtp.Client
 }
 
-func NewMailer() *Mailer {
+func NewMailer() (*Mailer, error) {
 	c, err := smtp.Dial("localhost:25")
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	return &Mailer{
 		Client: c,
-	}
+	}, nil
 }
 
-func (m *Mailer) Teardown() {
-	err := m.Client.Quit()
-	if err != nil {
-		log.Fatal(err)
-	}
+func (m *Mailer) Teardown() error {
+	return m.Client.Quit()
 }
 
-func (m *Mailer) Send(from string, to string, subject string, body string) {
+func (m *Mailer) Send(from string, to string, subject string, body string) error {
 	c := m.Client
 	if err := c.Mail(from); err != nil {
-		log.Fatal(err)
+		return err
 	}
 	if err := c.Rcpt(to); err != nil {
-		log.Fatal(err)
+		return err
 	}
 	wc, err := c.Data()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	_, err = fmt.Fprintf(wc, "Subject: [Camdram] "+subject+"\n")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	_, err = fmt.Fprintf(wc, body)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	err = wc.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
+	return wc.Close()
 }
