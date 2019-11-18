@@ -14,7 +14,7 @@ We compile the project down to a single executable that gets uploaded to our ser
 First [install Docker](https://docs.docker.com/install/) and then run the following in a terminal window:
 ```bash
 docker build -t camdram/email-webtools .
-docker run -v `pwd`:/go/src/github.com/camdram/email-webtools camdram/email-webtools
+docker run -v $(pwd):/go/src/github.com/camdram/email-webtools camdram/email-webtools
 ```
 
 ### Old School
