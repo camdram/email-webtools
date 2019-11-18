@@ -12,10 +12,13 @@ import (
 	"github.com/camdram/email-webtools/internal/assets"
 )
 
-func StartListner(port string, token string, serverName string) {
+func StartListner(port string, token string, serverName string, to string) {
 	log.Println("Starting Email Web Tools in client mode")
 	if serverName == "" {
 		log.Fatalln("Server name not set in .env file")
+	}
+	if to == "" {
+		log.Fatalln("Mail recipient address(es) not set in .env file")
 	}
 	ticker := time.NewTicker(1 * time.Minute)
 	stop := make(chan os.Signal, 1)
@@ -24,7 +27,7 @@ func StartListner(port string, token string, serverName string) {
 	for {
 		select {
 		case <-ticker.C:
-			go checkJSON(port, token, serverName)
+			go checkJSON(port, token, serverName, to)
 		case <-stop:
 			ticker.Stop()
 			return
@@ -32,7 +35,7 @@ func StartListner(port string, token string, serverName string) {
 	}
 }
 
-func checkJSON(port string, token string, serverName string) {
+func checkJSON(port string, token string, serverName string, to string) {
 	data, err := fetchFromServer(port, token, serverName)
 	if err != nil {
 		log.Println("Failed to make request to remote server:", err)
@@ -53,7 +56,7 @@ func checkJSON(port string, token string, serverName string) {
 				return
 			}
 			messageBody := string(data)
-			err = mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Postal Queue Alert", messageBody)
+			err = mailer.Send("camdram-admins@srcf.net", to, "Postal Queue Alert", messageBody)
 			if err != nil {
 				log.Fatalln("Failed to send alert:", err)
 			}
@@ -74,7 +77,7 @@ func checkJSON(port string, token string, serverName string) {
 				return
 			}
 			messageBody := string(data)
-			err = mailer.Send("camdram-admins@srcf.net", "charlie@charliejonas.co.uk", "Held Message Queue Alert", messageBody)
+			err = mailer.Send("camdram-admins@srcf.net", to, "Held Message Queue Alert", messageBody)
 			if err != nil {
 				log.Fatalln("Failed to send alert:", err)
 			}

@@ -11,7 +11,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var port, token, mysqlUser, mysqlPassword, mainDatabase, serverDatabase, serverName string
+var port, token, mysqlUser, mysqlPassword, mainDatabase, serverDatabase, serverName, to string
 
 func main() {
 	// Parse command line flags.
@@ -39,7 +39,7 @@ func main() {
 	if *mode == "server" {
 		server.StartServer(port, token, mysqlUser, mysqlPassword, mainDatabase, serverDatabase)
 	} else if *mode == "client" {
-		client.StartListner(port, token, serverName)
+		client.StartListner(port, token, serverName, to)
 	} else {
 		fmt.Println("Need to specify '--mode server' or '--mode client'")
 		os.Exit(1)
@@ -63,4 +63,5 @@ func readConfig(confFile *string) {
 	mainDatabase = os.Getenv("MAIN_DB")
 	serverDatabase = os.Getenv("SERVER_DB")
 	serverName = os.Getenv("HTTP_SERVER")
+	to = os.Getenv("SMTP_TO")
 }
