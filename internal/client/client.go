@@ -63,7 +63,7 @@ func checkJSON(port string, token string, serverName string, to string) {
 
 func calcTimeDiff(exponent int) float64 {
 	num := math.Pow(1.6, float64(exponent)) + float64(exponent)*3.2
-	return math.Max(num, 45)
+	return math.Min(num, 45)
 }
 
 func fetchFromServer(port string, token string, serverName string) (map[string]int, error) {
