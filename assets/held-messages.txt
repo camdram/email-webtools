@@ -1,4 +1,4 @@
-The length of the Camdram held mail queue is alerting!
+The held mail queue alert is firing!
 
 Summary:
 

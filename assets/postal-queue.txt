@@ -1,4 +1,4 @@
-The length of the Camdram Postal mail queue is alerting!
+The Postal mail queue length alert is firing!
 
 Summary:
 
@@ -18,9 +18,9 @@ Remedial action to take:
 4. If necessary, restart the email system by typing 'sudo systemctl
    restart postal'.
 
-If everything is functioning normally, Postal should automatically
-pickup mail from the queue process it appropriately. In the event that
-a large burst of mail is sent within a short timeframe then it is
-possible that the outgoing rate limit will be exceeded and further
-messages will be held back instead of being sent - you will be notified
-in a separate alert if this occurs.
+If everything is functioning normally, Postal should automatically pick
+up mail from the queue and process it appropriately. In the event that a
+large burst of mail is sent within a short timeframe then it is possible
+that the outgoing rate limit will be exceeded and further messages will
+be held back instead of being sent. You will be notified in a separate
+alert if this occurs.
