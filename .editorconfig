@@ -9,6 +9,10 @@ trim_trailing_whitespace = true
 charset = utf-8
 indent_style = space
 
+[Makefile]
+indent_style = tab
+indent_size = 4
+
 [*.go]
 indent_style = space
 indent_size = 4
