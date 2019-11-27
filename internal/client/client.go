@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/camdram/email-webtools/internal/assets"
+	"github.com/cbroglie/mustache"
 )
 
 var queueAlertLastSent, heldAlertLastSent time.Time
@@ -47,14 +48,14 @@ func checkJSON(port string, token string, serverName string, to string) {
 	}
 	if data["PostalQueue"] > 10 {
 		if time.Now().UTC().Sub(queueAlertLastSent).Minutes() > calcTimeDiff(queueAlertExponent) {
-			go sendQueueAlert(to)
+			go sendQueueAlert(to, data)
 		}
 	} else {
 		queueAlertExponent = 0
 	}
 	if data["HeldMessages"] > 0 {
 		if time.Now().UTC().Sub(heldAlertLastSent).Minutes() > calcTimeDiff(heldAlertExponent) {
-			go sendHeldAlert(to)
+			go sendHeldAlert(to, data)
 		}
 	} else {
 		heldAlertExponent = 0
@@ -91,7 +92,7 @@ func remoteURL(endpoint string, port string, serverName string) string {
 	return "http://" + serverName + ":" + port + "/" + endpoint
 }
 
-func sendQueueAlert(to string) {
+func sendQueueAlert(to string, data map[string]int) {
 	log.Println("Sending Postal queue alert")
 	mailer, err := NewMailer()
 	if err != nil {
@@ -99,12 +100,16 @@ func sendQueueAlert(to string) {
 		return
 	}
 	defer mailer.Teardown()
-	data, err := assets.Asset("assets/postal-queue.txt")
+	buf, err := assets.Asset("assets/postal-queue.txt")
 	if err != nil {
 		log.Fatalln("Failed to load alert message:", err)
 		return
 	}
-	messageBody := string(data)
+	messageBody, err := mustache.Render(string(buf), data)
+	if err != nil {
+		log.Fatalln("Failed to render alert message:", err)
+		return
+	}
 	err = mailer.Send("camdram-admins@srcf.net", to, "Postal Queue Alert", messageBody)
 	if err != nil {
 		log.Fatalln("Failed to send alert:", err)
@@ -114,7 +119,7 @@ func sendQueueAlert(to string) {
 	}
 }
 
-func sendHeldAlert(to string) {
+func sendHeldAlert(to string, data map[string]int) {
 	log.Println("Sending held message queue alert")
 	mailer, err := NewMailer()
 	if err != nil {
@@ -122,12 +127,16 @@ func sendHeldAlert(to string) {
 		return
 	}
 	defer mailer.Teardown()
-	data, err := assets.Asset("assets/held-messages.txt")
+	buf, err := assets.Asset("assets/held-messages.txt")
 	if err != nil {
 		log.Fatalln("Failed to load alert message:", err)
 		return
 	}
-	messageBody := string(data)
+	messageBody, err := mustache.Render(string(buf), data)
+	if err != nil {
+		log.Fatalln("Failed to render alert message:", err)
+		return
+	}
 	err = mailer.Send("camdram-admins@srcf.net", to, "Held Message Queue Alert", messageBody)
 	if err != nil {
 		log.Fatalln("Failed to send alert:", err)

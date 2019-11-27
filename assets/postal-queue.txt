@@ -7,6 +7,8 @@ operational levels. This could be due to server issues (eg. the message
 broker or SMTP daemon has crashed) or simply because Camdram is sending
 a very high rate of email within a very short timeframe (eg. spam).
 
+The current mail queue length is {{PostalQueue}}.
+
 Remedial action to take:
 
 1. Login to the admin interface at https://mail.camdram.net and monitor

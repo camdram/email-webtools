@@ -13,6 +13,7 @@ get:
 	@$(GOGET) github.com/joho/godotenv
 	@$(GOGET) github.com/go-sql-driver/mysql
 	@$(GOGET) -u github.com/shuLhan/go-bindata/...
+	@$(GOGET) github.com/cbroglie/mustache/...
 
 format:
 	$(GOFMT) main.go

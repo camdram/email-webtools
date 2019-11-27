@@ -6,6 +6,8 @@ The number of messages being held back by Postal is non-zero. This
 is likely due to Camdram exceeding the outgoing rate limit by sending a
 very large burst of mail within a short timeframe.
 
+The number of held messages is {{HeldMessages}}.
+
 Remedial action to take:
 
 1. Login to the admin interface at https://mail.camdram.net and monitor
