@@ -44,4 +44,4 @@ SMTP_TO: address1@example.com,address2@example.com
 
 The code in this Git repository is released under the [MIT License](https://en.wikipedia.org/wiki/MIT_License).
 
-Copyright (C) 2019 *The Association of Cambridge Theatre Societies* and contributing groups.
+Copyright (c) 2019–2020 *The Association of Cambridge Theatre Societies* and contributing groups.
