@@ -3,30 +3,32 @@
 `email-webtools` is a small micro-service written in Go that we at Camdram use to monitor our Email systems and ensure that email receipt and delivery is functioning as expected.
 
 ## How does it work?
-At Camdram we use [Postal](https://postal.atech.media/) for the sending and receiving of emails. This service connects to the Postal database in MySQL (technically MariaDB) and, when a correctly authenticated HTTP request is made, executes queries to determine the length of the mail queue and the number of held messaged.
+At Camdram we use [Postal](https://postal.atech.media/) for the sending and receiving of emails. This service connects to the Postal database in MySQL (technically MariaDB) and, when a correctly authenticated HTTP request is made, executes queries to determine the length of the mail queue and the volume of held mail.
 
 Queued messages are messages that are actively awaiting delivery. Held messages are those that have been put to one side and will not be delivered, needing manual intervention.
 
 ## Compiling
-We compile the project down to a single executable that gets uploaded to our server via SFTP or similar. This avoids having to install the entire Go toolchain which is simply unnecessary. Both of these methods produce a single `email-webtools` binary file in your working directory.
+We compile the project down to a single statically-linked executable which avoids having to install the entire Go toolchain on our server. Both of the methods detailed below produce a single `email-webtools` binary file in your working directory.
 
 ### Docker
 First [install Docker](https://docs.docker.com/install/) and then run the following in a terminal window:
+
 ```bash
 docker build -t camdram/email-webtools .
-docker run -v $(pwd):/go/src/github.com/camdram/email-webtools camdram/email-webtools
+docker run --rm -v ${PWD}:/go/src/github.com/camdram/email-webtools camdram/email-webtools
 ```
 
 ### Old School
 You will need to install the Golang programming language (see [here](https://golang.org/doc/install#install) for details). Then run the build using the included Makefile:
+
 ```bash
-GOARCH=amd64 GOOS=linux go tool dist install -v pkg/runtime
-GOARCH=amd64 GOOS=linux go install -v -a std
+make clean
 make all
 ```
 
-## Installing
-You'll need to create a `.env` config file. This should contain something along the following lines:
+## Deploying
+You'll need to create a `.env` config file to house the authentication settings. This should contain something along the following lines:
+
 ```
 HTTP_SERVER: hostname
 HTTP_PORT: 8080
