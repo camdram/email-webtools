@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"math"
 	"net/http"
@@ -14,8 +15,8 @@ import (
 	"github.com/cbroglie/mustache"
 )
 
-var queueAlertLastSent, heldAlertLastSent time.Time
-var queueAlertExponent, heldAlertExponent int
+var errorAlertLastSent, queueAlertLastSent, heldAlertLastSent time.Time
+var errorAlertExponent, queueAlertExponent, heldAlertExponent int
 
 func StartListner(port string, token string, serverName string, to string) {
 	log.Println("Starting Email Web Tools in client mode")
@@ -43,9 +44,13 @@ func StartListner(port string, token string, serverName string, to string) {
 func checkJSON(port string, token string, serverName string, to string) {
 	data, err := fetchFromServer(port, token, serverName)
 	if err != nil {
+		if time.Now().UTC().Sub(errorAlertLastSent).Minutes() > calcTimeDiff(errorAlertExponent) {
+			go sendErrorAlert(to, err)
+		}
 		log.Println("Failed to make request to remote server:", err)
 		return
 	}
+	errorAlertExponent = 0
 	if data["PostalQueue"] > 10 {
 		if time.Now().UTC().Sub(queueAlertLastSent).Minutes() > calcTimeDiff(queueAlertExponent) {
 			go sendQueueAlert(to, data)
@@ -90,6 +95,23 @@ func fetchFromServer(port string, token string, serverName string) (map[string]i
 
 func remoteURL(endpoint string, port string, serverName string) string {
 	return "http://" + serverName + ":" + port + "/" + endpoint
+}
+
+func sendErrorAlert(to string, err error) {
+	mailer, err := NewMailer()
+	if err != nil {
+		log.Println("Failed to initialise alert system:", err)
+		return
+	}
+	defer mailer.Teardown()
+	messageBody := fmt.Sprintln("Failed to make request to remote email-webtools server:", err)
+	err = mailer.Send("camdram-admins@srcf.net", to, "Postal Queue Alert", messageBody)
+	if err != nil {
+		log.Fatalln("Failed to send alert:", err)
+	} else {
+		errorAlertLastSent = time.Now().UTC()
+		errorAlertExponent++
+	}
 }
 
 func sendQueueAlert(to string, data map[string]int) {
