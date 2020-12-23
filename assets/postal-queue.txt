@@ -2,27 +2,29 @@ The Postal mail queue length alert is firing!
 
 Summary:
 
-The queue of mail waiting to be delivered by Postal is exceeding normal
-operational levels. This could be due to a server issue (eg. the message
-broker or SMTP daemon has crashed) or simply because Camdram is sending
-a very high rate of email within a very short timeframe (eg. spam).
+The queue of mail waiting to be delivered by Postal is exceeding normal 
+operational levels. This could be due to a server issue (eg. the message 
+broker or SMTP daemon has crashed) or simply because Camdram is sending 
+a very high rate of email within a very short timeframe (eg. new season 
+just announced or spam).
 
 The current mail queue length is {{PostalQueue}}.
 
 Remedial action to take:
 
-1. Login to the admin interface at https://mail.camdram.net and monitor
-   the situation.
-2. Login to the server and ensure the both MariaDB and RabbitMQ are
-   functioning using the command 'sudo systemctl status mariadb rabbitmq-server'.
-3. Run the following to check the status of the email system 'cd
-   /home/postal/app && sudo -Hu postal procodile status'.
-4. If necessary, restart the email system by typing 'sudo systemctl
-   restart postal'.
+1. Login to the web interface at https://mail.camdram.net and monitor 
+   the situation using the online admin tools.
+2. SSH into the server and ensure the both MariaDB and RabbitMQ are 
+   functioning using the following command:
+   'sudo systemctl status mariadb rabbitmq-server'.
+3. Run the following to check the status of the email system:
+   'cd /home/postal/app && sudo -Hu postal procodile status'.
+4. If necessary, restart the entire email system by typing:
+   'sudo systemctl restart postal'.
 
-If everything is functioning normally, Postal should automatically pickup
-mail from the queue and process it appropriately. In the event that a
-large burst of mail is sent within a short timeframe then it is possible
-that the outgoing rate limit will be exceeded and further messages will
-be held back instead of being sent. You will be notified in a separate
-alert if this occurs.
+If everything is functioning normally, Postal should automatically 
+pickup mail from the queue and process it appropriately. In the event 
+that a large burst of mail is sent within a short timeframe then it is 
+possible that the outgoing rate limit will be exceeded and further 
+messages will be held back instead of being sent. You will be notified 
+in a separate alert if this occurs.

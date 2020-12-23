@@ -1,26 +1,26 @@
-The held mail queue alert is firing!
+The held mail alert is firing!
 
 Summary:
 
-The number of messages being held back by Postal is non-zero. This
-is likely due to Camdram exceeding the outgoing rate limit by sending a
+The number of messages being held back by Postal is non-zero. This is 
+likely due to Camdram exceeding the outgoing rate limit by sending a 
 very large burst of mail within a short timeframe.
 
 The number of held messages is {{HeldMessages}}.
 
 Remedial action to take:
 
-1. Login to the admin interface at https://mail.camdram.net and monitor
-   the situation.
-2. If the number of held messages is small and the rate limit has not
-   been exceeded then you may manually release messages using the
-   Postal user interface.
+1. Login to the web interface at https://mail.camdram.net and monitor
+   the situation using the online admin tools.
+2. If the number of held messages is small and the rate limit has not 
+   been exceeded then you may manually release messages using the online 
+   admin tools.
 3. If the number of held messages is large then manually releasing each
    is likely to be laborious. Open a Postal console using the following
-   command 'cd /home/postal/app && sudo -Hu postal bin/postal console'
-   and type the following Ruby code inside (this will sleep for one
-   hour before attempting to resend the first 140 messages in the
-   queue):
+   shell command and type in the Ruby code shown below (this will sleep 
+   for one hour before attempting to resend the first 140 messages in 
+   the queue):
+   'cd /home/postal/app && sudo -Hu postal bin/postal console'
 
 =======================================================================
 org = Organization.first
@@ -35,7 +35,7 @@ begin
 end until messages.length == 0
 =======================================================================
 
-This alert may be accompanied by a separate alert regarding the length
-of the Postal mail queue. This usually indicates that a large burst of
-mail has been sent at the same time, or within the space of a few
-minutes.
+This alert may be accompanied by a separate alert regarding the length 
+of the Postal mail queue. This usually indicates that a large burst of 
+mail has been sent at the same time, or within the space of a few 
+minutes, rather than a steady steam over the course of an hour.
