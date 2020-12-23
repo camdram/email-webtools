@@ -20,7 +20,7 @@ Remedial action to take:
    shell command and type in the Ruby code shown below (this will sleep 
    for one hour before attempting to resend the first 140 messages in 
    the queue):
-   'cd /home/postal/app && sudo -Hu postal bin/postal console'
+   `cd /home/postal/app && sudo -Hu postal bin/postal console`
 
 =======================================================================
 org = Organization.first

@@ -16,11 +16,11 @@ Remedial action to take:
    the situation using the online admin tools.
 2. SSH into the server and ensure the both MariaDB and RabbitMQ are 
    functioning using the following command:
-   'sudo systemctl status mariadb rabbitmq-server'.
+   `sudo systemctl status mariadb rabbitmq-server`.
 3. Run the following to check the status of the email system:
-   'cd /home/postal/app && sudo -Hu postal procodile status'.
+   `cd /home/postal/app && sudo -Hu postal procodile status`.
 4. If necessary, restart the entire email system by typing:
-   'sudo systemctl restart postal'.
+   `sudo systemctl restart postal`.
 
 If everything is functioning normally, Postal should automatically 
 pickup mail from the queue and process it appropriately. In the event 
