@@ -16,3 +16,6 @@ indent_size = 4
 [*.go]
 indent_style = space
 indent_size = 4
+
+[assets/*.txt]
+trim_trailing_whitespace = false
