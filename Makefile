@@ -2,7 +2,7 @@ GO=$(shell which go)
 GOGET=$(GO) get
 GOMOD=$(GO) mod
 GOFMT=$(GO) fmt
-GOBUILD=$(GO) build
+GOBUILD=$(GO) build -ldflags "-X main.version=`git describe --tags`"
 
 export GOARCH=amd64
 export GOOS=linux

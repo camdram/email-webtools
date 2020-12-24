@@ -11,14 +11,26 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var version = "dev-edge"
+var copyright = "Copyright (c) 2019–2020 The Association of Cambridge Theatre Societies and contributing groups."
+
 var port, token, mysqlUser, mysqlPassword, mainDatabase, serverDatabase, serverName, to string
 
 func main() {
 	// Parse command line flags.
+	verThenExit := flag.Bool("version", false, "print software version and exit")
 	logFile := flag.String("log", "", "path to log file")
 	confFile := flag.String("config", ".env", "path to config file")
 	mode := flag.String("mode", "", "Program mode")
 	flag.Parse()
+
+	// Print version and exit if the user asked
+	if *verThenExit {
+		path := os.Args[0]
+		fmt.Println(path, "version", version)
+		fmt.Println(copyright)
+		os.Exit(0)
+	}
 
 	// Deal with logging output.
 	if *logFile != "" {
