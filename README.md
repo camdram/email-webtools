@@ -14,8 +14,8 @@ We compile the project down to a single statically-linked executable which avoid
 First [install Docker](https://docs.docker.com/install/) and then run the following in a terminal window:
 
 ```bash
-docker build -t camdram/email-webtools .
-docker run --rm -v ${PWD}:/go/src/github.com/camdram/email-webtools camdram/email-webtools
+docker build -t camdram/email-webtools:latest .
+docker run --rm -v ${PWD}:/app camdram/email-webtools:latest
 ```
 
 ### Old School
