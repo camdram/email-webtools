@@ -12,7 +12,7 @@ import (
 )
 
 var version = "dev-edge"
-var copyright = "Copyright (c) 2019–2020 The Association of Cambridge Theatre Societies and contributing groups."
+var copyright = "Copyright (c) 2019–2021 The Association of Cambridge Theatre Societies and contributing groups."
 
 var port, token, mysqlUser, mysqlPassword, mainDatabase, serverDatabase, serverName, to string
 
