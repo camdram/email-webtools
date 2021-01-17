@@ -23,7 +23,7 @@ build/assets: get
 	go-bindata -o internal/assets/assets.go -pkg assets assets/
 
 build: build/assets dir mod
-	$(GOBUILD) -o bin/email-webtools main.go
+	$(GOBUILD) -o bin/email-webtools -mod=readonly main.go
 
 clean:
 	@rm -rf bin
