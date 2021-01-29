@@ -1,7 +1,7 @@
 SHELL := bash
 .ONESHELL:
 
-VER=$(shell git describe --tags)
+VER=$(shell git describe --tags --always --dirty)
 GO=$(shell which go)
 GOGET=$(GO) get
 GOMOD=$(GO) mod
@@ -20,8 +20,8 @@ format:
 build/assets:
 	$(GOGET) github.com/shuLhan/go-bindata/...
 	go-bindata -o internal/assets/assets.go -pkg assets assets/
-	
-	
+
+
 build/linux/amd64: dir mod build/assets
 	export CGO_ENABLED=0
 	export GOOS=linux
