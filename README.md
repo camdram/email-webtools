@@ -46,4 +46,4 @@ SMTP_TO: address1@example.com,address2@example.com
 
 The code in this Git repository is released under the [MIT License](https://en.wikipedia.org/wiki/MIT_License).
 
-Copyright (c) 2019–2021 *The Association of Cambridge Theatre Societies* and contributing groups.
+Copyright (c) 2019–2021 Members of the Camdram Web Team and other contributors.
