@@ -3,10 +3,11 @@ The Postal mail queue length alert is firing!
 Summary:
 
 The queue of mail waiting to be delivered by Postal is exceeding normal 
-operational levels. This could be due to a server issue (eg. the message 
-broker or SMTP daemon has crashed) or simply because Camdram is sending 
-a very high rate of email within a very short timeframe (eg. new season 
-just announced or spam).
+operational levels. This could be due to a server issue (e.g. the mail 
+message broker or SMTP daemon has crashed) or simply because Camdram is 
+sending a very high rate of email within a very short timeframe (e.g. 
+the new ADC season has just announced, or the support site is being 
+sent a lot of spam).
 
 The current mail queue length is {{PostalQueue}}.
 
