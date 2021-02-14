@@ -18,7 +18,7 @@ import (
 var errorAlertLastSent, queueAlertLastSent, heldAlertLastSent time.Time
 var errorAlertExponent, queueAlertExponent, heldAlertExponent int
 
-func StartListner(port string, token string, serverName string, to string) {
+func StartListner(port string, token string, serverName string, userAgent string, to string) {
 	ensureConfig(serverName, to)
 	log.Println("Starting Email Web Tools in client mode")
 	ticker := time.NewTicker(1 * time.Minute)
@@ -28,7 +28,7 @@ func StartListner(port string, token string, serverName string, to string) {
 	for {
 		select {
 		case <-ticker.C:
-			go checkJSON(port, token, serverName, to)
+			go checkJSON(port, token, serverName, userAgent, to)
 		case <-stop:
 			ticker.Stop()
 			return
@@ -45,8 +45,8 @@ func ensureConfig(serverName string, to string) {
 	}
 }
 
-func checkJSON(port string, token string, serverName string, to string) {
-	data, err := fetchFromServer(port, token, serverName)
+func checkJSON(port string, token string, serverName string, userAgent string, to string) {
+	data, err := fetchFromServer(port, token, serverName, userAgent)
 	if err != nil {
 		msg := fmt.Sprint("Failed to make request to remote email-webtools server", err)
 		log.Println(msg)
@@ -79,7 +79,7 @@ func calcTimeDiff(exponent int) float64 {
 	return math.Min(num, 45)
 }
 
-func fetchFromServer(port string, token string, serverName string) (map[string]int, error) {
+func fetchFromServer(port string, token string, serverName string, userAgent string) (map[string]int, error) {
 	url := remoteURL("json", port, serverName)
 	client := &http.Client{}
 	var data map[string]int
@@ -87,7 +87,11 @@ func fetchFromServer(port string, token string, serverName string) (map[string]i
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Authorization", "Bearer "+token)
+	req.Header.Set("Cache-Control", "no-store, max-age=0")
+	req.Header.Set("Authorization", "Bearer "+token)
+	if userAgent != "" {
+		req.Header.Set("User-Agent", userAgent)
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err

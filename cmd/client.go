@@ -12,11 +12,12 @@ var clientCmd = &cobra.Command{
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		loadConfig()
+		userAgent := "email-webtools/" + version + " (+https://github.com/camdram/email-webtools)"
 		port := viper.GetString("HTTP_PORT")
 		token := viper.GetString("HTTP_AUTH_TOKEN")
 		serverName := viper.GetString("HTTP_SERVER")
 		to := viper.GetString("SMTP_TO")
-		client.StartListner(port, token, serverName, to)
+		client.StartListner(port, token, serverName, userAgent, to)
 	},
 }
 
