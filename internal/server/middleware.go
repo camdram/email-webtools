@@ -13,9 +13,10 @@ func logMiddleware(next http.Handler) http.Handler {
 	return handlers.LoggingHandler(os.Stdout, next)
 }
 
-func serverHeaderMiddleware(next http.Handler) http.Handler {
+func headerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Server", "https://github.com/camdram/email-webtools")
+		w.Header().Set("Cache-Control", "no-store, max-age=0")
 		next.ServeHTTP(w, r)
 	})
 }
