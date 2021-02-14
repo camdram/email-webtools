@@ -35,7 +35,7 @@ func loadConfig() {
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
 		if err := viper.ReadInConfig(); err != nil {
-			log.Fatalf("Unable to read config file: %v\n", err)
+			log.Fatalln("Unable to read config file:", err)
 		}
 	}
 	ensureConfig()
