@@ -27,10 +27,17 @@ func newController(driver *SQLDriver, token string) *Controller {
 }
 
 func (c *Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Printf("%s %s %s", r.Method, r.URL.Path, r.RemoteAddr)
 	auth := r.Header.Get("Authorization")
-	if auth == "Bearer "+c.bearer {
-		log.Printf("%s %s %s", r.Method, r.URL.Path, r.RemoteAddr)
+	expected := "Bearer " + c.bearer
+	switch auth {
+	case expected:
 		c.mux.ServeHTTP(w, r)
+	case "":
+		w.Header().Set("WWW-Authenticate", "Bearer realm=\"Camdram email-webtools\"")
+		http.Error(w, "401 unauthorized", http.StatusUnauthorized)
+	default:
+		http.Error(w, "403 forbidden", http.StatusForbidden)
 	}
 }
 
@@ -40,7 +47,7 @@ func (c *Controller) queueLengthResponder(w http.ResponseWriter, r *http.Request
 		log.Println(err)
 		return
 	}
-	fmt.Fprintf(w, "Postal queue length: %d", queueLength)
+	fmt.Fprintf(w, "Postal queue length: %d\n", queueLength)
 }
 
 func (c *Controller) heldMessageCountResponder(w http.ResponseWriter, r *http.Request) {
@@ -49,11 +56,11 @@ func (c *Controller) heldMessageCountResponder(w http.ResponseWriter, r *http.Re
 		log.Println(err)
 		return
 	}
-	fmt.Fprintf(w, "Held message count: %d", heldCount)
+	fmt.Fprintf(w, "Held message count: %d\n", heldCount)
 }
 
 func (c *Controller) smokeTestResponder(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Pong!")
+	fmt.Fprintf(w, "Pong\n")
 }
 
 func (c *Controller) jsonResponder(w http.ResponseWriter, r *http.Request) {
