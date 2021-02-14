@@ -19,13 +19,14 @@ var errorAlertLastSent, queueAlertLastSent, heldAlertLastSent time.Time
 var errorAlertExponent, queueAlertExponent, heldAlertExponent int
 
 func StartListner(port string, token string, serverName string, to string) {
-	log.Println("Starting Email Web Tools in client mode")
 	if serverName == "" {
-		log.Fatalln("Server name not set in .env file")
+		log.Fatalln("Server name not set")
 	}
 	if to == "" {
-		log.Fatalln("Mail recipient address(es) not set in .env file")
+		log.Fatalln("Mail recipient address(es) not set")
 	}
+
+	log.Println("Starting Email Web Tools in client mode")
 	ticker := time.NewTicker(1 * time.Minute)
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)

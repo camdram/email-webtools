@@ -1,10 +1,9 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/camdram/email-webtools/internal/server"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var serverCmd = &cobra.Command{
@@ -12,12 +11,13 @@ var serverCmd = &cobra.Command{
 	Short: "Run email-webtools in server mode",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		port := os.Getenv("HTTP_PORT")
-		token := os.Getenv("HTTP_AUTH_TOKEN")
-		mysqlUser := os.Getenv("MYSQL_USER")
-		mysqlPassword := os.Getenv("MYSQL_PASSWORD")
-		mainDatabase := os.Getenv("MAIN_DB")
-		serverDatabase := os.Getenv("SERVER_DB")
+		loadConfig()
+		port := viper.GetString("HTTP_PORT")
+		token := viper.GetString("HTTP_AUTH_TOKEN")
+		mysqlUser := viper.GetString("MYSQL_USER")
+		mysqlPassword := viper.GetString("MYSQL_PASSWORD")
+		mainDatabase := viper.GetString("MAIN_DB")
+		serverDatabase := viper.GetString("SERVER_DB")
 		server.StartServer(port, token, mysqlUser, mysqlPassword, mainDatabase, serverDatabase)
 	},
 }
