@@ -17,27 +17,26 @@ func StartServer(port string, token string, mysqlUser string, mysqlPassword stri
 		log.Fatalln("Failed to initialise connection to database:", err)
 	}
 	defer driver.Clean()
-	c := newController(driver, token)
-	s := &http.Server{
-		Addr:    ":" + port,
-		Handler: c,
-	}
+	addr := ":" + port
+	c := newController(driver, token, addr)
 	go func() {
-		if err := s.ListenAndServe(); err != http.ErrServerClosed {
+		if err := c.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatalln("Failed to start web server:", err)
 		}
 	}()
 	log.Println("Listening on port", port)
 
-	// Gracefully handle SYSCALLS.
+	// Block until we get SIGINT or SIGTERM.
 	timeout := 5 * time.Second
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	signal.Notify(stop, syscall.SIGTERM)
 	<-stop
+
+	// Exit gracefully.
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	if err := s.Shutdown(ctx); err != nil {
+	if err := c.Shutdown(ctx); err != nil {
 		log.Fatalln("Failed to terminate web server:", err)
 	} else {
 		log.Println("Web server terminated gracefully")
