@@ -35,6 +35,7 @@ func newController(driver *SQLDriver, token string, addr string) *Controller {
 }
 
 func (c *Controller) ListenAndServe() error {
+	c.router.Use(recoveryMiddleware)
 	c.router.Use(logMiddleware)
 	c.router.Use(headerMiddleware)
 	c.router.Use(c.authMiddleware)

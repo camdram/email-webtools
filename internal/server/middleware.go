@@ -41,7 +41,7 @@ func recoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				http.Error(w, "500 Internal Server Error", http.StatusInternalServerError)
+				http.Error(w, "500 internal server error", http.StatusInternalServerError)
 				log.Println("An internal server error occurred:", err)
 				log.Println(string(debug.Stack()))
 			}
