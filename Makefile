@@ -17,12 +17,7 @@ mod:
 format:
 	$(GOFMT) ./...
 
-build/assets:
-	$(GOGET) github.com/shuLhan/go-bindata/...
-	go-bindata -o internal/assets/assets.go -pkg assets assets/
-
-
-build/linux/amd64: dir mod build/assets
+build/linux/amd64: dir mod
 	export CGO_ENABLED=0
 	export GOOS=linux
 	export GOARCH=amd64
@@ -34,8 +29,5 @@ build: build/linux
 
 clean:
 	@rm -rf bin
-	@rm -f internal/assets/assets.go
-
-assets: build/assets
 
 all: format build

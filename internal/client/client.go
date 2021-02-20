@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/camdram/email-webtools/internal/assets"
+	"github.com/camdram/email-webtools/assets"
 	"github.com/cbroglie/mustache"
 )
 
@@ -132,12 +132,12 @@ func sendQueueAlert(to string, data map[string]int) {
 		return
 	}
 	defer mailer.Teardown()
-	buf, err := assets.Asset("assets/postal-queue.txt")
+	template, err := assets.ReadFile("postal-queue.txt")
 	if err != nil {
 		log.Fatalln("Failed to load email alert template:", err)
 		return
 	}
-	messageBody, err := mustache.Render(string(buf), data)
+	messageBody, err := mustache.Render(string(template), data)
 	if err != nil {
 		log.Fatalln("Failed to render email alert message body:", err)
 		return
@@ -159,12 +159,12 @@ func sendHeldAlert(to string, data map[string]int) {
 		return
 	}
 	defer mailer.Teardown()
-	buf, err := assets.Asset("assets/held-messages.txt")
+	template, err := assets.ReadFile("held-messages.txt")
 	if err != nil {
 		log.Fatalln("Failed to load email alert template:", err)
 		return
 	}
-	messageBody, err := mustache.Render(string(buf), data)
+	messageBody, err := mustache.Render(string(template), data)
 	if err != nil {
 		log.Fatalln("Failed to render email alert message body:", err)
 		return
