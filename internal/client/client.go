@@ -48,7 +48,7 @@ func ensureConfig(serverName string, to string) {
 func checkJSON(port string, token string, serverName string, userAgent string, to string) {
 	data, err := fetchFromServer(port, token, serverName, userAgent)
 	if err != nil {
-		msg := fmt.Sprint("Failed to make request to remote email-webtools server", err)
+		msg := fmt.Sprintf("Failed to make request to remote email-webtools server: %v", err)
 		log.Println(msg)
 		if time.Now().UTC().Sub(errorAlertLastSent).Minutes() > calcTimeDiff(errorAlertExponent) {
 			go sendErrorAlert(to, msg)
@@ -115,7 +115,7 @@ func sendErrorAlert(to string, msg string) {
 		return
 	}
 	defer mailer.Teardown()
-	err = mailer.Send("camdram-admins@srcf.net", to, "An email-webtools error occurred", msg)
+	err = mailer.Send("camdram-admins@srcf.net", to, "email-webtools Error Alert", msg)
 	if err != nil {
 		log.Fatalln("Failed to send email alert:", err)
 	} else {
