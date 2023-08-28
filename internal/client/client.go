@@ -132,7 +132,7 @@ func sendQueueAlert(to string, data map[string]int) {
 		return
 	}
 	defer mailer.Teardown()
-	template, err := assets.ReadFile("postal-queue.txt")
+	template, err := assets.ReadFile("postal-queue.txt.mustache")
 	if err != nil {
 		log.Fatalln("Failed to load email alert template:", err)
 		return
@@ -159,7 +159,7 @@ func sendHeldAlert(to string, data map[string]int) {
 		return
 	}
 	defer mailer.Teardown()
-	template, err := assets.ReadFile("held-messages.txt")
+	template, err := assets.ReadFile("held-messages.txt.mustache")
 	if err != nil {
 		log.Fatalln("Failed to load email alert template:", err)
 		return
