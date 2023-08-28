@@ -10,25 +10,25 @@ The number of held messages is {{HeldMessages}}.
 
 Remedial action to take:
 
-1. Login to the web interface at https://mail.camdram.net and monitor
+1. Login to the web interface at https://mail.camdram.net/ and monitor 
    the situation using the online admin tools.
 2. If the number of held messages is small and the rate limit has not 
    been exceeded then you may manually release messages using the online 
    admin tools.
-3. If the number of held messages is large then manually releasing each
-   is likely to be laborious. Open a Postal console using the following
+3. If the number of held messages is large then manually releasing each 
+   is likely to be laborious. Open a Postal console using the following 
    shell command and type in the Ruby code shown below (this will sleep 
    for one hour before attempting to resend the first 140 messages in 
    the queue):
-   `cd /home/postal/app && sudo -Hu postal bin/postal console`
+   `sudo postal console`
 
 =======================================================================
-org = Organization.first
-server = org.servers.first
+server = Server.find_by(uuid: "b119aaeb-64e3-47b1-a991-c7297371a573")
 db = server.message_db
 begin
   sleep 3600
-  messages = db.messages(where: {held: 1}, limit: 140)
+  messages = db.messages(where: {held: 1, scope: 'outgoing'}, limit: 320)
+  puts "Sending #{messages.length} message at #{Time.now}"
   messages.each do |msg|
     msg.add_to_message_queue(manual: true)
   end

@@ -13,15 +13,15 @@ The current mail queue length is {{PostalQueue}}.
 
 Remedial action to take:
 
-1. Login to the web interface at https://mail.camdram.net and monitor 
+1. Login to the web interface at https://mail.camdram.net/ and monitor 
    the situation using the online admin tools.
 2. SSH into the server and ensure the both MariaDB and RabbitMQ are 
    functioning using the following command:
    `sudo systemctl status mariadb rabbitmq-server`.
 3. Run the following to check the status of the email system:
-   `cd /home/postal/app && sudo -Hu postal procodile status`.
+   `sudo postal status`.
 4. If necessary, restart the entire email system by typing:
-   `sudo systemctl restart postal`.
+   `sudo postal stop && sudo postal start`.
 
 If everything is functioning normally, Postal should automatically 
 pickup mail from the queue and process it appropriately. In the event 
