@@ -23,7 +23,7 @@ docker run --rm -v ${PWD}:/app camdram/email-webtools:latest
 
 ### Old School
 
-You will need to install at least version 1.16 of the Go programming language (see [here](https://golang.org/doc/install#install) for details). Then run the build using the included Makefile:
+You will need to install version 1.21.0 of the Go programming language (see [here](https://golang.org/doc/install#install) for details). Then run the build using the included Makefile:
 
 ```bash
 make clean
