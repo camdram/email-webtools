@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -26,8 +27,15 @@ func Execute(v string) {
 }
 
 func init() {
+	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "path to config file (default is ENV)")
 	rootCmd.PersistentFlags().StringVarP(&logFile, "log", "l", "", "path to log file (default is standard output)")
+}
+
+func initConfig() {
+	if os.Getenv("JOURNAL_STREAM") != "" {
+		log.Default().SetFlags(0)
+	}
 }
 
 func loadConfig() {
