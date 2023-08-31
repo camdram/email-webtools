@@ -28,7 +28,7 @@ func newSQLDriver(mysqlUser string, mysqlPassword string, mainDatabase string, s
 	}
 
 	// Prepare queries to run against the database.
-	queueStmt, err := mainDb.Prepare("SELECT COUNT(id) as size FROM queued_messages WHERE retry_after IS NULL OR retry_after <= ADDTIME(UTC_TIMESTAMP(), '30') AND locked_at IS NULL")
+	queueStmt, err := mainDb.Prepare("SELECT COUNT(id) as size FROM queued_messages")
 	if err != nil {
 		return nil, err
 	}
