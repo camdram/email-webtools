@@ -22,7 +22,7 @@ var rootCmd = &cobra.Command{
 func Execute(v string) {
 	version = v
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatalln(err)
+		log.Fatalln("Failed to execute command:", err)
 	}
 }
 

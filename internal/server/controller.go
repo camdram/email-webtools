@@ -47,18 +47,21 @@ func (c *Controller) Shutdown(ctx context.Context) error {
 }
 
 func (c *Controller) smokeTestResponder(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Pong\n")
+	_, err := fmt.Fprintf(w, "Pong\n")
+	if err != nil {
+		log.Fatalln("Failed to write HTTP response:", err)
+	}
 }
 
 func (c *Controller) jsonResponder(w http.ResponseWriter, r *http.Request) {
 	queueLength, err := c.sqld.GetQueueLength()
 	if err != nil {
-		log.Println(err)
+		log.Fatalln("Failed to get queue length:", err)
 		return
 	}
 	heldCount, err := c.sqld.GetHeldMessageCount()
 	if err != nil {
-		log.Println(err)
+		log.Fatalln("Failed to get held message count:", err)
 		return
 	}
 	data := map[string]int{
@@ -67,24 +70,30 @@ func (c *Controller) jsonResponder(w http.ResponseWriter, r *http.Request) {
 	}
 	enc := json.NewEncoder(w)
 	if err := enc.Encode(&data); err != nil {
-		log.Println(err)
+		log.Fatalln("Failed to encode JSON to HTTP response:", err)
 	}
 }
 
 func (c *Controller) queueLengthResponder(w http.ResponseWriter, r *http.Request) {
 	queueLength, err := c.sqld.GetQueueLength()
 	if err != nil {
-		log.Println(err)
+		log.Fatalln("Failed to get queue length:", err)
 		return
 	}
-	fmt.Fprintf(w, "Postal queue length: %d\n", queueLength)
+	_, err = fmt.Fprintf(w, "Postal queue length: %d\n", queueLength)
+	if err != nil {
+		log.Fatalln("Failed to write HTTP response:", err)
+	}
 }
 
 func (c *Controller) heldMessageCountResponder(w http.ResponseWriter, r *http.Request) {
 	heldCount, err := c.sqld.GetHeldMessageCount()
 	if err != nil {
-		log.Println(err)
+		log.Fatalln("Failed to get held message count:", err)
 		return
 	}
-	fmt.Fprintf(w, "Held message count: %d\n", heldCount)
+	_, err = fmt.Fprintf(w, "Held message count: %d\n", heldCount)
+	if err != nil {
+		log.Fatalln("Failed to write HTTP response:", err)
+	}
 }

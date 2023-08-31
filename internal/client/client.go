@@ -57,7 +57,7 @@ func checkJSON(port string, token string, serverName string, userAgent string, t
 	}
 	errorAlertExponent = 0
 	if data["PostalQueue"] > 10 {
-		log.Println("Alert firing: Postal queue length is greater than ten")
+		log.Println("Alert firing: mail queue length is greater than ten")
 		if time.Now().UTC().Sub(queueAlertLastSent).Minutes() > calcTimeDiff(queueAlertExponent) {
 			go sendQueueAlert(to, data)
 		}
@@ -65,7 +65,7 @@ func checkJSON(port string, token string, serverName string, userAgent string, t
 		queueAlertExponent = 0
 	}
 	if data["HeldMessages"] > 0 {
-		log.Println("Alert firing: Number of held messages is greater than zero")
+		log.Println("Alert firing: number of held messages is greater than zero")
 		if time.Now().UTC().Sub(heldAlertLastSent).Minutes() > calcTimeDiff(heldAlertExponent) {
 			go sendHeldAlert(to, data)
 		}
